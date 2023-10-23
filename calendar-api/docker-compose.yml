@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+  core-db:
+    image: postgres:11.11
+    volumes:
+      - db-data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=tamanna
+      - POSTGRES_PASSWORD=tamanna
+    ports:
+      - 5437:5432
+    networks:
+      tamanna-network:
+        aliases:
+          - tamanna-db
+  tamanna-app:
+    image: tamanna-app:1.0.0
+    ports:
+        - 8080:8080
+    environment:
+        - SPRING_PROFILES_ACTIVE=prod
+    extra_hosts:
+        host.docker.internal: host-gateway
+    depends_on: 
+        - "core-db"
+   
+  
+volumes:
+  db-data:
+  
+networks:
+  tamanna-network:
+

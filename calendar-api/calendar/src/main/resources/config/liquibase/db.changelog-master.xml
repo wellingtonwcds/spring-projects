@@ -1,0 +1,68 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="1" author="wellington.sa">
+        <comment>Basic tables to create an api calendar for candidates and interviewers</comment>
+
+        <sql><![CDATA[
+            drop type if exists role_type;
+            create type role_type as enum('INTERVIEWER', 'CANDIDATE');
+            ]]></sql>
+        <createSequence sequenceName="system_user_seq" startValue="1"/>
+        <createTable tableName="system_user">
+            <column name="id" type="BIGINT" defaultValueSequenceNext="system_user_seq">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role_type" type="role_type">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createSequence sequenceName="available_time_slot_seq" startValue="1"/>
+        <createTable tableName="available_time_slot">
+            <column name="id" type="BIGINT" defaultValueSequenceNext="available_time_slot_seq">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="date_from" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_until" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="time_from" type="time">
+                <constraints nullable="false"/>
+            </column>
+            <column name="time_until" type="time">
+                <constraints nullable="false"/>
+            </column>
+            <column name="system_user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="system_user_id"
+                                 baseTableName="available_time_slot"
+                                 constraintName="fk_available_time_slot_system_user"
+                                 referencedColumnNames="id"
+                                 referencedTableName="system_user"/>
+
+        <rollback>
+            <dropTable tableName="system_user"/>
+            <dropSequence sequenceName="system_user_seq"/>
+            <dropTable tableName="available_time_slot"/>
+            <dropSequence sequenceName="available_time_slot_seq"/>
+
+            <sql><![CDATA[
+                drop type if exists role_type;
+            ]]></sql>
+        </rollback>
+
+    </changeSet>
+
+</databaseChangeLog>
